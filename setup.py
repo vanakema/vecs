@@ -75,7 +75,7 @@ setuptools.setup(
     ],
     install_requires=REQUIRES,
     extras_require={
-        "dev": ["pytest", "parse", "numpy", "pytest-cov"],
+        "dev": ["pytest", "parse", "numpy", "pytest-cov", "pyright"],
         "docs": [
             "mkdocs",
             "pygments",

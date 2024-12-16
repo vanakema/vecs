@@ -13,3 +13,6 @@ exclude = '''
   | dist
 )/
 '''
+
+[tool.pyright]
+include = ["src"]

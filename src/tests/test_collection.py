@@ -217,7 +217,7 @@ def test_query(client: vecs.Client) -> None:
         res = bar.query(data=query_vec, limit=top_k, measure="invalid")
 
     # skip_adapter has no effect (no adapter present)
-    res = bar.query(data=query_vec, limit=top_k, skip_adapter=True)
+    res = bar.query(query_vec, limit=top_k, skip_adapter=True)
     assert len(res) == top_k
 
     # include_value

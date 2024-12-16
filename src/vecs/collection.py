@@ -12,7 +12,7 @@ import uuid
 import warnings
 from dataclasses import dataclass
 from enum import Enum
-from typing import TYPE_CHECKING, Any, Dict, Iterable, List, Optional, Tuple, Union
+from typing import TYPE_CHECKING, Any, Dict, Iterable, List, Optional, Sequence, Tuple, Union, Literal, overload
 
 from flupy import flu
 from pgvector.sqlalchemy import Vector
@@ -48,8 +48,12 @@ if TYPE_CHECKING:
 MetadataValues = Union[str, int, float, bool, List[str]]
 Metadata = Dict[str, MetadataValues]
 Numeric = Union[int, float, complex]
-Record = Tuple[str, Iterable[Numeric], Metadata]
-
+Vector = Iterable[Numeric]
+Record = Tuple[str, Vector, Metadata]
+Distance = float
+QueryRecordDistanceMetadata = Tuple[str, Distance, Metadata]
+QueryRecordDistance = Tuple[str, Distance]
+QueryRecordMetadata = Tuple[str, Metadata]
 
 class IndexMethod(str, Enum):
     """
@@ -448,19 +452,75 @@ class Collection:
             raise KeyError("no item found with requested id")
         return row[0]
 
+    @overload
+    def query(self,
+        data: Union[Iterable[Numeric], Any],
+        *,
+        limit: int = 10,
+        filters: Optional[Dict] = None,
+        measure: Union[IndexMeasure, str] = IndexMeasure.cosine_distance,
+        include_value: Literal[False] = False,
+        include_metadata: Literal[False] = False,
+        probes: Optional[int] = None,
+        ef_search: Optional[int] = None,
+        skip_adapter: bool = False,
+              ) -> Sequence[str]: ...
+
+    @overload
+    def query(self,
+        data: Union[Iterable[Numeric], Any],
+        *,
+        limit: int = 10,
+        filters: Optional[Dict] = None,
+        measure: Union[IndexMeasure, str] = IndexMeasure.cosine_distance,
+        include_value: Literal[True],
+        include_metadata: Literal[False] = False,
+        probes: Optional[int] = None,
+        ef_search: Optional[int] = None,
+        skip_adapter: bool = False,
+              ) -> Sequence[QueryRecordDistance]: ...
+
+    @overload
+    def query(self,
+        data: Union[Iterable[Numeric], Any],
+        *,
+        limit: int = 10,
+        filters: Optional[Dict] = None,
+        measure: Union[IndexMeasure, str] = IndexMeasure.cosine_distance,
+        include_value: Literal[False] = False,
+        include_metadata: Literal[True],
+        probes: Optional[int] = None,
+        ef_search: Optional[int] = None,
+        skip_adapter: bool = False,
+              ) -> Sequence[QueryRecordMetadata]: ...
+
+    @overload
+    def query(self,
+        data: Union[Iterable[Numeric], Any],
+        *,
+        limit: int = 10,
+        filters: Optional[Dict] = None,
+        measure: Union[IndexMeasure, str] = IndexMeasure.cosine_distance,
+        include_value: Literal[True],
+        include_metadata: Literal[True],
+        probes: Optional[int] = None,
+        ef_search: Optional[int] = None,
+        skip_adapter: bool = False,
+              ) -> Sequence[QueryRecordDistanceMetadata]: ...
+
     def query(
         self,
         data: Union[Iterable[Numeric], Any],
+        *,
         limit: int = 10,
         filters: Optional[Dict] = None,
         measure: Union[IndexMeasure, str] = IndexMeasure.cosine_distance,
         include_value: bool = False,
         include_metadata: bool = False,
-        *,
         probes: Optional[int] = None,
         ef_search: Optional[int] = None,
         skip_adapter: bool = False,
-    ) -> Union[List[Record], List[str]]:
+    ) -> Sequence[str | QueryRecordDistance | QueryRecordMetadata | QueryRecordDistanceMetadata]:
         """
         Executes a similarity search in the collection.
 
