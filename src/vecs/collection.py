@@ -48,8 +48,8 @@ if TYPE_CHECKING:
 MetadataValues = Union[str, int, float, bool, List[str]]
 Metadata = Dict[str, MetadataValues]
 Numeric = Union[int, float, complex]
-Vector = Iterable[Numeric]
-Record = Tuple[str, Vector, Metadata]
+Vec = Iterable[Numeric]
+Record = Tuple[str, Vec, Metadata]
 Distance = float
 QueryRecordDistanceMetadata = Tuple[str, Distance, Metadata]
 QueryRecordDistance = Tuple[str, Distance]
